@@ -50,24 +50,39 @@ function App() {
         <FavoritesList />
       </div>
       {error && <Alert severity="error">{error}</Alert>}
-      {!error && loading && <CircularProgress color="secondary" />}
-      {!loading && !error && birthdays?.births && <BirthdayList />}
+      {/* {!error && loading && <CircularProgress color="secondary" />} */}
+      <BirthdayList />
 
+      {/* MUI tooltip does not play nice with scrollable lists, so using react-tooltip */}
       <Tooltip
-        id={"person-tooltip"}
-        delayShow={1000}
+        id={"tooltip"}
+        delayShow={700}
         style={{
           backgroundColor: "rgba(255, 255, 255, 0.95)",
           // padding: 10,
-          padding: 20,
+          padding: 10,
           // paddingRight: 120,
           color: "black",
           // fontWeight: "bold",
-          fontSize: "1rem",
+          fontSize: "0.9rem",
           maxWidth: 500,
           textAlign: "left",
         }}
       />
+      {/* <Tooltip
+        id={"fav-tooltip"}
+        delayShow={500}
+        style={{
+          backgroundColor: "rgba(159, 213, 255, 0.95)",
+          // padding: 10,
+          padding: 10,
+          // paddingRight: 120,
+          color: "black",
+          // fontWeight: "bold",
+          fontSize: "1rem",
+          textAlign: "center",
+        }}
+      /> */}
     </div>
   );
 }
