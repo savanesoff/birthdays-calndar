@@ -62,6 +62,8 @@ export type DataType = {
   births: BirthType[];
 };
 
+type FavoritesMapType = Map<string, { title: string; imageUrl: string }[]>;
+
 const API =
   "https://api.wikimedia.org/feed/v1/wikipedia/{LANGUAGE}/onthisday/births/{MM}/{DD}";
 const LOCAL_STORAGE_KEY = "favorites";
@@ -120,21 +122,21 @@ export function BirthdaysProvider({
   const [language, setLanguage] = useState(locale || "en");
   const [month, setMonth] = useState<string | null>(null);
   const [day, setDay] = useState<string | null>(null);
-  const [favoritesMap, setFavoritesMap] = useState<
-    Map<string, { title: string; imageUrl: string }[]>
-  >(new Map());
+  const [favoritesMap, setFavoritesMap] = useState<FavoritesMapType>(new Map());
 
   const setDates = useCallback(({ MM, DD }: { MM: string; DD: string }) => {
     setMonth(MM);
     setDay(DD);
   }, []);
 
+  // change of language or month or day will trigger the fetch
   useEffect(() => {
     if (month && day) {
       fetchData({ mm: month, dd: day });
     }
   }, [month, day]);
 
+  // change of favorites will trigger the map creation of favorites
   useEffect(() => {
     if (!favorites) {
       return;
