@@ -86,7 +86,7 @@ type BirthdaysContextType = {
   getFormattedItemValue: (item: BirthType) => string;
 };
 
-const BirthdayContext = createContext<BirthdaysContextType>({
+export const BirthdayContext = createContext<BirthdaysContextType>({
   loading: false,
   error: null,
   birthdays: null,
@@ -148,7 +148,6 @@ export function BirthdaysProvider({
     >();
     favorites.forEach((favorite) => {
       // use reges to get the text and date
-      //   const text = favorite.match(/\{DD:(\d+)\}\{MM:(\d+)\}\{TITLE:(.*)\}/);
       const data = favorite.match(
         /\{DD:(\d+)\}\{MM:(\d+)\}\{TITLE:(.*)\}\{IMG:(.*)\}/
       );

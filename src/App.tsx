@@ -29,7 +29,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Celebrity birthday finder</h1>
+      <h1>Birthdays calendar</h1>
       <div
         style={{
           display: "flex",

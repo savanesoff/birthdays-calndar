@@ -25,7 +25,7 @@ export function BirthdayList(): JSX.Element {
     birthdays?.births || []
   );
   const [filter, setFilter] = useState("");
-  const [filterDelay, setFilterDelay] = useState<number | undefined>();
+  const [filterDelay, setFilterDelay] = useState<NodeJS.Timeout | undefined>();
 
   const filterData = useCallback(
     (filter: string) => {
@@ -61,6 +61,7 @@ export function BirthdayList(): JSX.Element {
     if (!filtered) return null;
     return (
       <List
+        data-testid="birthdays-list"
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
@@ -78,6 +79,7 @@ export function BirthdayList(): JSX.Element {
 
   return (
     <div
+      data-testid="birthdays-list-container"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -87,7 +89,7 @@ export function BirthdayList(): JSX.Element {
       }}
     >
       {day && month && (
-        <h3>
+        <h3 data-testid="birthdays-list-title">
           Famous people born on {getLocalizedDate(`{DD:${day}}{MM:${month}}`)}
         </h3>
       )}
@@ -100,6 +102,7 @@ export function BirthdayList(): JSX.Element {
       />
       {loading && (
         <div
+          data-testid="birthdays-list-loading"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -108,7 +111,7 @@ export function BirthdayList(): JSX.Element {
             height: "300px",
           }}
         >
-          <CircularProgress color="secondary" />
+          <CircularProgress color="secondary" data-testid="loader" />
         </div>
       )}
       {!loading && ListMemo}
@@ -125,6 +128,7 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
     <ListItem
       data-tooltip-content={data.pages[0].extract}
       data-tooltip-id={"tooltip"}
+      data-testid="birthdays-list-item"
       secondaryAction={
         <Star
           onClick={() => toggleFavorite(data)}

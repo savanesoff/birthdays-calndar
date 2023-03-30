@@ -7,6 +7,7 @@ import {
   Avatar,
   Button,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -49,7 +50,7 @@ export function FavoritesList(): JSX.Element {
           {Array.from(favoritesMap.entries()).map(([key, value], i) => (
             <div key={i}>
               <FavoriteGroup date={key} data={value} />
-              <Divider variant="inset" component="div" />
+              <Divider variant="inset" />
             </div>
           ))}
         </List>
@@ -98,12 +99,17 @@ function FavoriteGroup({
         }
       >
         {data.map((v, i) => (
-          <ListItemButton key={i + "sdf"}>
-            <ListItemAvatar>
-              <Avatar alt={v.title} src={v.imageUrl || defaultAvatar} />
-            </ListItemAvatar>
-            <ListItemText primary={v.title} />
-          </ListItemButton>
+          <ListItem key={i}>
+            <ListItemButton>
+              <ListItemAvatar>
+                <Avatar alt={v.title} src={v.imageUrl || defaultAvatar} />
+              </ListItemAvatar>
+              <ListItemText
+                primary={v.title}
+                primaryTypographyProps={{ fontSize: "0.8rem" }}
+              />
+            </ListItemButton>
+          </ListItem>
         ))}
       </List>
     </ListItem>
