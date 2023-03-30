@@ -15,6 +15,7 @@ Main objective were accomplished, including:
 4. API data is cached using Maps
 5. MUI is used in most cases
 6. Theming is corrected for baseline
+7. Name filtering
 
 ## Not finished
 
