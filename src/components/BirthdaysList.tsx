@@ -1,10 +1,11 @@
-import { BirthType, useBirthdays } from "../data/useBirthdays";
+import { BirthType, DataType, useBirthdays } from "../data/useBirthdays";
 import defaultAvatar from "../assets/default_avatar.png";
 import {
   Alert,
   Avatar,
   CircularProgress,
   Divider,
+  Input,
   List,
   ListItem,
   ListItemAvatar,
@@ -12,6 +13,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { getLocalizedDate } from "../utils/date";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * List of birthdays for the selected date
@@ -19,6 +21,61 @@ import { getLocalizedDate } from "../utils/date";
  */
 export function BirthdayList(): JSX.Element {
   const { birthdays, month, day, loading } = useBirthdays();
+  const [filtered, setFiltered] = useState<BirthType[]>(
+    birthdays?.births || []
+  );
+  const [filter, setFilter] = useState("");
+  const [filterDelay, setFilterDelay] = useState<number | undefined>();
+
+  const filterData = useCallback(
+    (filter: string) => {
+      // setFiltered(birthdays?.births || []);
+      if (filter) {
+        const filtered = birthdays?.births.filter((birth) => {
+          return birth.text.toLowerCase().includes(filter.toLowerCase());
+        }) as BirthType[];
+        setFiltered(filtered);
+      } else {
+        setFiltered(birthdays?.births || []);
+      }
+    },
+    [birthdays]
+  );
+
+  useEffect(() => {
+    filterData(filter);
+  }, [birthdays]);
+
+  useEffect(() => {
+    clearTimeout(filterDelay);
+    const delay = setTimeout(() => {
+      filterData(filter);
+    }, 700);
+    setFilterDelay(delay);
+    return () => {
+      clearTimeout(delay);
+    };
+  }, [filter]);
+
+  const ListMemo = useMemo(() => {
+    if (!filtered) return null;
+    return (
+      <List
+        sx={{
+          bgcolor: "background.paper",
+          overflow: "auto",
+        }}
+      >
+        {filtered.map((birth, i) => (
+          <div key={birth.text}>
+            <ItemListBirthday data={birth} />
+            <Divider variant="inset" component="div" />
+          </div>
+        ))}
+      </List>
+    );
+  }, [filtered]);
+
   return (
     <div
       style={{
@@ -37,6 +94,10 @@ export function BirthdayList(): JSX.Element {
       {!day && !month && (
         <Alert severity="info">Please select date to load data</Alert>
       )}
+      <Input
+        placeholder="Filter by name"
+        onChange={(event) => setFilter(event.target.value)}
+      />
       {loading && (
         <div
           style={{
@@ -50,21 +111,7 @@ export function BirthdayList(): JSX.Element {
           <CircularProgress color="secondary" />
         </div>
       )}
-      {!loading && birthdays?.births && (
-        <List
-          sx={{
-            bgcolor: "background.paper",
-            overflow: "auto",
-          }}
-        >
-          {birthdays?.births.map((birth, i) => (
-            <>
-              <ItemListBirthday data={birth} key={i} />
-              <Divider variant="inset" component="div" />
-            </>
-          ))}
-        </List>
-      )}
+      {!loading && ListMemo}
     </div>
   );
 }

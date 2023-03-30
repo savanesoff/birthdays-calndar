@@ -46,11 +46,11 @@ export function FavoritesList(): JSX.Element {
             overflow: "auto",
           }}
         >
-          {Array.from(favoritesMap.entries()).map(([key, value]) => (
-            <>
-              <FavoriteGroup date={key} data={value} key={key} />
+          {Array.from(favoritesMap.entries()).map(([key, value], i) => (
+            <div key={i}>
+              <FavoriteGroup date={key} data={value} />
               <Divider variant="inset" component="div" />
-            </>
+            </div>
           ))}
         </List>
       )}
@@ -98,7 +98,7 @@ function FavoriteGroup({
         }
       >
         {data.map((v, i) => (
-          <ListItemButton>
+          <ListItemButton key={i + "sdf"}>
             <ListItemAvatar>
               <Avatar alt={v.title} src={v.imageUrl || defaultAvatar} />
             </ListItemAvatar>

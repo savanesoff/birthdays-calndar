@@ -38,6 +38,7 @@ function App() {
           alignItems: "stretch",
           height: "80vh",
           width: "100%",
+          gap: "2rem",
         }}
       >
         <div
