@@ -6,7 +6,7 @@
   "homepage": "https://savanesoff.github.io/birthdays-calndar",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --base=./",
     "preview": "vite preview",
     "test": "jest",
     "predeploy": "npm run build",
