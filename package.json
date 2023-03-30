@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/savanesoff/birthdays-calndar-page",
+  "homepage": "https://github.com/savanesoff/birthdays-calendar-page",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
