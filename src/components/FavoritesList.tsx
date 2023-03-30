@@ -22,59 +22,58 @@ import {
 export function FavoritesList(): JSX.Element {
   const { favoritesMap, clearFavorites } = useBirthdays();
   return (
-    <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "stretch",
-          justifyContent: "flex-start",
-          width: "500px",
-          maxHeight: "100vh",
-        }}
-      >
-        <h3>Favorites</h3>
-        {favoritesMap.size === 0 && (
-          <Alert severity="info">
-            No favorites added, click "star" icon to add/remove items
-          </Alert>
-        )}
-        {favoritesMap && (
-          <List
-            sx={{
-              bgcolor: "background.paper",
-              overflow: "auto",
-            }}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        justifyContent: "flex-start",
+        flexGrow: 1,
+        width: "40vw",
+        maxHeight: "80vh",
+      }}
+    >
+      <h3>Favorites</h3>
+      {favoritesMap.size === 0 && (
+        <Alert severity="info">
+          No favorites added, click "star" icon to add/remove items
+        </Alert>
+      )}
+      {favoritesMap && (
+        <List
+          sx={{
+            bgcolor: "background.paper",
+            overflow: "auto",
+          }}
+        >
+          {Array.from(favoritesMap.entries()).map(([key, value]) => (
+            <>
+              <FavoriteGroup date={key} data={value} key={key} />
+              <Divider variant="inset" component="div" />
+            </>
+          ))}
+        </List>
+      )}
+      {favoritesMap.size !== 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "10px",
+          }}
+        >
+          <Button
+            variant="outlined"
+            onClick={clearFavorites}
+            startIcon={<DeleteIcon />}
           >
-            {Array.from(favoritesMap.entries()).map(([key, value]) => (
-              <>
-                <FavoriteGroup date={key} data={value} key={key} />
-                <Divider variant="inset" component="div" />
-              </>
-            ))}
-          </List>
-        )}
-        {favoritesMap.size !== 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "10px",
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={clearFavorites}
-              startIcon={<DeleteIcon />}
-            >
-              Clear
-            </Button>
-          </div>
-        )}
-      </div>
-    </>
+            Clear
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 

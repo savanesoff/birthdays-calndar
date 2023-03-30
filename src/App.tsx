@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 import "./App.css";
-import { BirthType, useBirthdays } from "./data/useBirthdays";
+import { useBirthdays } from "./data/useBirthdays";
 import { StaticDatePicker } from "@mui/x-date-pickers";
-import { Header } from "./Header";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
-import { Alert, CircularProgress } from "@mui/material";
+import { Alert } from "@mui/material";
 import { FavoritesList } from "./components/FavoritesList";
 import { BirthdayList } from "./components/BirthdaysList";
+import { Footer } from "./components/Footer";
 
 function App() {
   const { setDates, error, loading, birthdays } = useBirthdays();
@@ -29,30 +29,44 @@ function App() {
 
   return (
     <div className="App">
-      <Header />
+      <h1>Celebrity birthday finder</h1>
       <div
         style={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
+          alignItems: "stretch",
+          height: "80vh",
+          width: "100%",
         }}
       >
-        <StaticDatePicker
-          onChange={handleDateChange}
-          orientation="landscape"
-          slotProps={{
-            // The actions will be the same between desktop and mobile
-            actionBar: {
-              actions: undefined,
-            },
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+            width: "50vw",
           }}
-        />
+        >
+          <StaticDatePicker
+            onChange={handleDateChange}
+            orientation="landscape"
+            slotProps={{
+              // The actions will be the same between desktop and mobile
+              actionBar: {
+                actions: undefined,
+              },
+            }}
+          />
+          <BirthdayList />
+        </div>
+
         <FavoritesList />
       </div>
-      {error && <Alert severity="error">{error}</Alert>}
-      {/* {!error && loading && <CircularProgress color="secondary" />} */}
-      <BirthdayList />
 
+      {error && <Alert severity="error">{error}</Alert>}
+      <Footer />
       {/* MUI tooltip does not play nice with scrollable lists, so using react-tooltip */}
       <Tooltip
         id={"tooltip"}
@@ -69,20 +83,6 @@ function App() {
           textAlign: "left",
         }}
       />
-      {/* <Tooltip
-        id={"fav-tooltip"}
-        delayShow={500}
-        style={{
-          backgroundColor: "rgba(159, 213, 255, 0.95)",
-          // padding: 10,
-          padding: 10,
-          // paddingRight: 120,
-          color: "black",
-          // fontWeight: "bold",
-          fontSize: "1rem",
-          textAlign: "center",
-        }}
-      /> */}
     </div>
   );
 }

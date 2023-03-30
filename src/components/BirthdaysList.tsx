@@ -26,8 +26,7 @@ export function BirthdayList(): JSX.Element {
         flexDirection: "column",
         alignItems: "stretch",
         justifyContent: "flex-start",
-        width: "500px",
-        maxHeight: "30vh",
+        height: "50vh",
       }}
     >
       {day && month && (
