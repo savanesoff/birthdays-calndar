@@ -1,58 +1,112 @@
 import { useBirthdays } from "./../data/useBirthdays";
 import defaultAvatar from "./../assets/default_avatar.png";
 import { getLocalizedDate } from "./../utils/date";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Alert,
+  Avatar,
+  Button,
+  Divider,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
+} from "@mui/material";
 
-export function FavoritesList() {
+/**
+ * FavoritesList component to show the list of favorites
+ * no props required for this component as it uses the context
+ */
+export function FavoritesList(): JSX.Element {
   const { favoritesMap, clearFavorites } = useBirthdays();
   return (
     <>
-      {favoritesMap && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch",
-            justifyContent: "flex-start",
-            flexGrow: 1,
-            width: "500px",
-            maxHeight: "30vh",
-            overflow: "auto",
-          }}
-        >
-          <p>Favorites</p>
-          {Array.from(favoritesMap.entries()).map(([key, value]) => (
-            <div key={key}>
-              <p> {getLocalizedDate(key)} </p>
-              {value.map((v, i) => (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                  }}
-                >
-                  <img
-                    src={v.imageUrl || defaultAvatar}
-                    alt={v.title}
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                      borderWidth: 1,
-                      borderStyle: "solid",
-                      borderColor: "gray",
-                    }}
-                  />
-                  <p key={i}> {v.title} </p>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-      <button onClick={clearFavorites}>Clear</button>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch",
+          justifyContent: "flex-start",
+          width: "500px",
+          maxHeight: "100vh",
+        }}
+      >
+        <h3>Favorites</h3>
+        {favoritesMap.size === 0 && (
+          <Alert severity="info">
+            No favorites added, click "star" icon to add/remove items
+          </Alert>
+        )}
+        {favoritesMap && (
+          <List
+            sx={{
+              bgcolor: "background.paper",
+              overflow: "auto",
+            }}
+          >
+            {Array.from(favoritesMap.entries()).map(([key, value]) => (
+              <>
+                <FavoriteGroup date={key} data={value} key={key} />
+                <Divider variant="inset" component="div" />
+              </>
+            ))}
+          </List>
+        )}
+        {favoritesMap.size !== 0 && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "10px",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={clearFavorites}
+              startIcon={<DeleteIcon />}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
+      </div>
     </>
+  );
+}
+
+function FavoriteGroup({
+  date,
+  data,
+}: {
+  date: string;
+  data: { title: string; imageUrl: string }[];
+}): JSX.Element {
+  return (
+    <ListItem>
+      <List
+        sx={{
+          bgcolor: "background.paper",
+          overflow: "auto",
+        }}
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            {getLocalizedDate(date)}
+          </ListSubheader>
+        }
+      >
+        {data.map((v, i) => (
+          <ListItemButton>
+            <ListItemAvatar>
+              <Avatar alt={v.title} src={v.imageUrl || defaultAvatar} />
+            </ListItemAvatar>
+            <ListItemText primary={v.title} />
+          </ListItemButton>
+        ))}
+      </List>
+    </ListItem>
   );
 }

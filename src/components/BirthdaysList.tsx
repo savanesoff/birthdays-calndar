@@ -16,7 +16,6 @@ import { getLocalizedDate } from "../utils/date";
 /**
  * List of birthdays for the selected date
  * No need to pass any props, as the data is fetched from the context
- *
  */
 export function BirthdayList(): JSX.Element {
   const { birthdays, month, day, loading } = useBirthdays();
@@ -62,7 +61,6 @@ export function BirthdayList(): JSX.Element {
           {birthdays?.births.map((birth, i) => (
             <>
               <ItemListBirthday data={birth} key={i} />
-
               <Divider variant="inset" component="div" />
             </>
           ))}
@@ -75,7 +73,7 @@ export function BirthdayList(): JSX.Element {
 function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
   const { toggleFavorite, getFormattedItemValue, favorites } = useBirthdays();
   const avatar = data.pages[0].thumbnail?.source || defaultAvatar;
-  const name = data.pages[0].normalizedtitle;
+  const name = data.text; // data.pages[0].normalizedtitle;
   const alt = data.text;
   return (
     <ListItem
@@ -108,7 +106,7 @@ function Star({
 }: {
   onClick?: () => void;
   checked?: boolean;
-}) {
+}): JSX.Element {
   return (
     <div
       style={{
