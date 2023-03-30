@@ -118,8 +118,30 @@ function Favorites() {
           {Array.from(favoritesMap.entries()).map(([key, value]) => (
             <div key={key}>
               <p> {getLocalizedDate(key)} </p>
-              {value.map((v) => (
-                <p key={v}> {v} </p>
+              {value.map((v, i) => (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <img
+                    src={v.imageUrl || defaultAvatar}
+                    alt={v.title}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      borderWidth: 1,
+                      borderStyle: "solid",
+                      borderColor: "gray",
+                    }}
+                  />
+                  <p key={i}> {v.title} </p>
+                </div>
               ))}
             </div>
           ))}
@@ -171,6 +193,7 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
     loading,
     birthdays,
     toggleFavorite,
+    getFormattedItemValue,
     favorites,
     month,
     day,
@@ -232,7 +255,7 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
       >
         <Star
           onClick={() => toggleFavorite(data)}
-          checked={favorites?.has(`{DD:${day}}{MM:${month}}${data.text}`)}
+          checked={favorites?.has(getFormattedItemValue(data))}
         />
       </div>
     </div>

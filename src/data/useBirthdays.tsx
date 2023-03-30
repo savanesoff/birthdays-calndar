@@ -79,8 +79,9 @@ type BirthdaysContextType = {
   day: string | null;
   language: string;
   setLanguage: (language: string) => void;
-  favoritesMap: Map<string, string[]>;
+  favoritesMap: Map<string, { title: string; imageUrl: string }[]>;
   clearFavorites: () => void;
+  getFormattedItemValue: (item: BirthType) => string;
 };
 
 const BirthdayContext = createContext<BirthdaysContextType>({
@@ -96,6 +97,7 @@ const BirthdayContext = createContext<BirthdaysContextType>({
   setLanguage: () => {},
   favoritesMap: new Map(),
   clearFavorites: () => {},
+  getFormattedItemValue: () => "",
 });
 
 export function BirthdaysProvider({
@@ -118,9 +120,9 @@ export function BirthdaysProvider({
   const [language, setLanguage] = useState(locale || "en");
   const [month, setMonth] = useState<string | null>(null);
   const [day, setDay] = useState<string | null>(null);
-  const [favoritesMap, setFavoritesMap] = useState<Map<string, string[]>>(
-    new Map()
-  );
+  const [favoritesMap, setFavoritesMap] = useState<
+    Map<string, { title: string; imageUrl: string }[]>
+  >(new Map());
 
   const setDates = useCallback(({ MM, DD }: { MM: string; DD: string }) => {
     setMonth(MM);
@@ -138,16 +140,26 @@ export function BirthdaysProvider({
       return;
     }
     //create a map of favorites with key as {DD:dd}{MM:mm} and value as text
-    const favoritesMap = new Map<string, string[]>();
+    const favoritesMap = new Map<
+      string,
+      { title: string; imageUrl: string }[]
+    >();
     favorites.forEach((favorite) => {
       // use reges to get the text and date
-      const text = favorite.match(/\{DD:(\d+)\}\{MM:(\d+)\}(.*)/);
-      if (text) {
-        const key = `{DD:${text[1]}}{MM:${text[2]}}`;
-        const value = text[3];
+      //   const text = favorite.match(/\{DD:(\d+)\}\{MM:(\d+)\}\{TITLE:(.*)\}/);
+      const data = favorite.match(
+        /\{DD:(\d+)\}\{MM:(\d+)\}\{TITLE:(.*)\}\{IMG:(.*)\}/
+      );
+      if (data) {
+        const key = `{DD:${data[1]}}{MM:${data[2]}}`;
+        const value = {
+          title: data[3],
+          imageUrl: data[4] === "undefined" ? "" : data[4],
+        };
+
         if (favoritesMap.has(key)) {
           favoritesMap.set(key, [
-            ...(favoritesMap.get(key) as string[]),
+            ...(favoritesMap.get(key) as { title: string; imageUrl: string }[]),
             value,
           ]);
         } else {
@@ -158,9 +170,19 @@ export function BirthdaysProvider({
     setFavoritesMap(favoritesMap);
   }, [favorites]);
 
+  const getFormattedItemValue = useCallback(
+    (data: BirthType) => {
+      const imageURL = (
+        data.pages[0]?.thumbnail || data.pages[0]?.originalimage
+      )?.source;
+      return `{DD:${day}}{MM:${month}}{TITLE:${data.text}}{IMG:${imageURL}}`;
+    },
+    [day, month]
+  );
+
   const toggleFavorite = useCallback(
     (data: BirthType) => {
-      const value = `{DD:${day}}{MM:${month}}${data.text}`;
+      const value = getFormattedItemValue(data);
       const favorites = new Set(
         (localStorage.getItem(LOCAL_STORAGE_KEY) || "").split(
           LOCAL_STORAGE_DELIMITER
@@ -242,6 +264,7 @@ export function BirthdaysProvider({
         day,
         favoritesMap,
         clearFavorites,
+        getFormattedItemValue,
       }}
     >
       {children}
