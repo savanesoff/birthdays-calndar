@@ -1,4 +1,4 @@
-import { BirthType, DataType, useBirthdays } from "../data/useBirthdays";
+import { BirthType, useBirthdays } from "../data/useBirthdays";
 import defaultAvatar from "../assets/default_avatar.png";
 import {
   Alert,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { getLocalizedDate } from "../utils/date";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import StarIcon from "@mui/icons-material/Star";
 
 /**
  * List of birthdays for the selected date
@@ -124,17 +125,31 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
   const avatar = data.pages[0].thumbnail?.source || defaultAvatar;
   const name = data.text; // data.pages[0].normalizedtitle;
   const alt = data.text;
+  const checked = favorites?.has(getFormattedItemValue(data));
+  const Icon = useMemo(() => {
+    return (
+      <StarIcon
+        fontSize="large"
+        data-tooltip-content={
+          checked ? "Remove from favorites" : "Add to favorites"
+        }
+        data-tooltip-id={"tooltip"}
+        onClick={() => toggleFavorite(data)}
+        style={{
+          cursor: "pointer",
+          fill: checked ? "#1dbbff" : "rgba(255, 255, 255, 0.1)",
+          stroke: checked ? "#a1ddf7" : "rgba(255, 255, 255, 0.1)",
+        }}
+      />
+    );
+  }, [checked, data, toggleFavorite]);
+
   return (
     <ListItem
       data-tooltip-content={data.pages[0].extract}
       data-tooltip-id={"tooltip"}
       data-testid="birthdays-list-item"
-      secondaryAction={
-        <Star
-          onClick={() => toggleFavorite(data)}
-          checked={favorites?.has(getFormattedItemValue(data))}
-        />
-      }
+      secondaryAction={Icon}
       disablePadding
     >
       <ListItemButton
@@ -146,44 +161,5 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
         <ListItemText primary={name} />
       </ListItemButton>
     </ListItem>
-  );
-}
-
-// favorite icon
-function Star({
-  onClick,
-  checked,
-}: {
-  onClick?: () => void;
-  checked?: boolean;
-}): JSX.Element {
-  return (
-    <div
-      style={{
-        width: "30px",
-        height: "30px",
-      }}
-      data-tooltip-content={
-        checked ? "Remove from favorites" : "Add to favorites"
-      }
-      data-tooltip-id={"tooltip"}
-    >
-      <svg
-        viewBox="0 0 100 100"
-        width="100%"
-        height="100%"
-        onClick={onClick}
-        style={{
-          cursor: "pointer",
-          fill: checked ? "#1dbbff" : "rgba(255, 255, 255, 0.1)",
-          stroke: checked ? "#00415d" : "rgba(255, 255, 255, 0.1)",
-        }}
-      >
-        <polygon
-          points="50 0, 64 36, 100 36, 70 58, 82 100, 50 78, 18 100, 30 58, 0 36, 36 36"
-          strokeWidth="4"
-        />
-      </svg>
-    </div>
   );
 }
