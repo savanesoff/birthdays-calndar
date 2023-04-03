@@ -16,6 +16,7 @@ import { getLocalizedDate } from "../utils/date";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import StarIcon from "@mui/icons-material/Star";
 
+const DEBOUNCE_DELAY = 700;
 /**
  * List of birthdays for the selected date
  * No need to pass any props, as the data is fetched from the context
@@ -28,12 +29,14 @@ export function BirthdayList(): JSX.Element {
   const [filter, setFilter] = useState("");
   const [filterDelay, setFilterDelay] = useState<NodeJS.Timeout | undefined>();
 
+  // filters the data based on the filter string
+  // presumably by name, but also includes the text
   const filterData = useCallback(
     (filter: string) => {
-      // setFiltered(birthdays?.births || []);
       if (filter) {
         const filtered = birthdays?.births.filter((birth) => {
-          return birth.text.toLowerCase().includes(filter.toLowerCase());
+          const regex = new RegExp(filter, "i");
+          return regex.test(birth.text);
         }) as BirthType[];
         setFiltered(filtered);
       } else {
@@ -43,15 +46,19 @@ export function BirthdayList(): JSX.Element {
     [birthdays]
   );
 
+  // initial filter
   useEffect(() => {
     filterData(filter);
   }, [birthdays]);
 
+  // debounce filter
+  // this is to prevent the filter from being called on every keystroke
+  // and instead only call it after the user has stopped typing
   useEffect(() => {
     clearTimeout(filterDelay);
     const delay = setTimeout(() => {
       filterData(filter);
-    }, 700);
+    }, DEBOUNCE_DELAY);
     setFilterDelay(delay);
     return () => {
       clearTimeout(delay);
