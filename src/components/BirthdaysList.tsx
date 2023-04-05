@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import StarIcon from "@mui/icons-material/Star";
 import { useSnapshot } from "valtio";
 import { hasCurrentDateFavorite, state, toggleFavorite } from "../data/state";
+import { FixedSizeList } from "react-window";
 
 const DEBOUNCE_DELAY = 700;
 /**
@@ -76,20 +77,23 @@ export function BirthdayList(): JSX.Element {
   const ListMemo = useMemo(() => {
     if (!filtered) return null;
     return (
-      <List
-        data-testid="birthdays-list"
-        sx={{
-          bgcolor: "background.paper",
-          overflow: "auto",
-        }}
+      <FixedSizeList
+        height={366}
+        width={"100%"}
+        itemSize={56}
+        itemCount={filtered.length}
+        overscanCount={6}
       >
-        {filtered.map((data) => (
-          <div key={data.text}>
-            <ItemListBirthday data={data} />
-            <Divider variant="inset" component="div" />
-          </div>
-        ))}
-      </List>
+        {({ index, style }) => {
+          const data = filtered[index];
+          return (
+            <div key={index}>
+              <ItemListBirthday data={data} style={style} />
+              <Divider variant="inset" component="div" />
+            </div>
+          );
+        }}
+      </FixedSizeList>
     );
   }, [filtered]);
 
@@ -144,7 +148,13 @@ export function BirthdayList(): JSX.Element {
  * Hovering over the star icon will display a tooltip
  * Hovering over the item will display a tooltip with the WIKI extract
  */
-function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
+function ItemListBirthday({
+  data,
+  style,
+}: {
+  data: BirthType;
+  style: React.CSSProperties;
+}): JSX.Element {
   const { favorites } = useSnapshot(state);
   const avatar = data.pages[0].thumbnail?.source || defaultAvatar;
   const name = data.text;
@@ -183,6 +193,7 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
       data-testid="birthdays-list-item"
       secondaryAction={Icon}
       disablePadding
+      style={style}
     >
       <ListItemButton
         // open WIKI page in new tab of current peron
