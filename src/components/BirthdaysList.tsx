@@ -52,6 +52,14 @@ export function BirthdayList(): JSX.Element {
     [birthdays]
   );
 
+  // memoized handler
+  const onInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFilter(e.target.value);
+    },
+    []
+  );
+
   // initial filter
   useEffect(() => {
     filterData(filter);
@@ -117,10 +125,7 @@ export function BirthdayList(): JSX.Element {
         <Alert severity="info">Please select date to load birthdays</Alert>
       )}
       {/* This is the filter input */}
-      <Input
-        placeholder="Filter by name"
-        onChange={(event) => setFilter(event.target.value)}
-      />
+      <Input placeholder="Filter by name" onChange={onInputChange} />
       {/* Display loading state */}
       {loading && (
         <div

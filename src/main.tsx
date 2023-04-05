@@ -9,7 +9,6 @@ import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { createTheme } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
 import CssBaseline from "@mui/material/CssBaseline";
-import { BirthdaysProvider } from "./data/useBirthdays";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
