@@ -11,12 +11,27 @@ import {
   ListItemAvatar,
   ListItemButton,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import StarIcon from "@mui/icons-material/Star";
 import { useSnapshot } from "valtio";
 import { hasCurrentDateFavorite, state, toggleFavorite } from "../data/state";
 import { FixedSizeList } from "react-window";
+
+const TEST_ID = "birthday-list";
+export const IDS = {
+  component: TEST_ID,
+  title: `${TEST_ID}-title`,
+  list: `${TEST_ID}-list`,
+  item: `${TEST_ID}-item`,
+  avatar: `${TEST_ID}-avatar`,
+  text: `${TEST_ID}-text`,
+  favorite: `${TEST_ID}-favorite`,
+  input: `${TEST_ID}-input`,
+  alert: `${TEST_ID}-alert`,
+  loading: `${TEST_ID}-loading`,
+};
 
 const DEBOUNCE_DELAY = 700;
 /**
@@ -95,10 +110,12 @@ export function BirthdayList(): JSX.Element {
         {({ index, style }) => {
           const data = filtered[index];
           return (
-            <div key={index}>
-              <ItemListBirthday data={data} style={style} />
-              <Divider variant="inset" component="div" />
-            </div>
+            <ItemListBirthday
+              data={data}
+              style={style}
+              key={index}
+              index={index}
+            />
           );
         }}
       </FixedSizeList>
@@ -107,7 +124,7 @@ export function BirthdayList(): JSX.Element {
 
   return (
     <div
-      data-testid="birthdays-list-container"
+      data-testid={IDS.component}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -118,18 +135,25 @@ export function BirthdayList(): JSX.Element {
     >
       {/* Display title for the selected date */}
       {date && (
-        <h3 data-testid="birthdays-list-title">Famous people born on {date}</h3>
+        <Typography variant="h6" data-testid={IDS.title}>
+          Famous people born on: {date}
+        </Typography>
       )}
       {/* Display message prompting user to select a date */}
       {!date && (
-        <Alert severity="info">Please select date to load birthdays</Alert>
+        <Alert severity="info" data-testid={IDS.alert}>
+          Please select date to load birthdays
+        </Alert>
       )}
       {/* This is the filter input */}
-      <Input placeholder="Filter by name" onChange={onInputChange} />
+      <Input
+        data-testid={IDS.input}
+        placeholder="Filter by name"
+        onChange={onInputChange}
+      />
       {/* Display loading state */}
       {loading && (
         <div
-          data-testid="birthdays-list-loading"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -138,7 +162,7 @@ export function BirthdayList(): JSX.Element {
             height: "300px",
           }}
         >
-          <CircularProgress color="secondary" data-testid="loader" />
+          <CircularProgress color="secondary" data-testid={IDS.loading} />
         </div>
       )}
       {!loading && ListMemo}
@@ -156,9 +180,11 @@ export function BirthdayList(): JSX.Element {
 function ItemListBirthday({
   data,
   style,
+  index,
 }: {
   data: BirthType;
   style: React.CSSProperties;
+  index: number;
 }): JSX.Element {
   const { favorites } = useSnapshot(state);
   const avatar = data.pages[0].thumbnail?.source || defaultAvatar;
@@ -182,6 +208,7 @@ function ItemListBirthday({
           checkedMemo ? "Remove from favorites" : "Add to favorites"
         }
         data-tooltip-id={"tooltip"}
+        data-testid={`${IDS.favorite}-${index}`}
         // call valtio action to toggle favorite
         // which will be contextual to the current date
         onClick={toggle}
@@ -195,20 +222,23 @@ function ItemListBirthday({
   }, [checkedMemo, data]);
 
   return (
-    <ListItem
-      data-tooltip-content={data.pages[0].extract}
-      data-tooltip-id={"tooltip"}
-      data-testid="birthdays-list-item"
-      secondaryAction={Icon}
-      disablePadding
-      style={style}
-    >
-      <ListItemButton onClick={openWiki}>
-        <ListItemAvatar>
-          <Avatar alt={alt} src={avatar} />
-        </ListItemAvatar>
-        <ListItemText primary={name} />
-      </ListItemButton>
-    </ListItem>
+    <div>
+      <ListItem
+        data-tooltip-content={data?.pages[0]?.extract}
+        data-tooltip-id={"tooltip"}
+        data-testid="birthdays-list-item"
+        secondaryAction={Icon}
+        disablePadding
+        style={style}
+      >
+        <ListItemButton onClick={openWiki}>
+          <ListItemAvatar>
+            <Avatar alt={alt} src={avatar} />
+          </ListItemAvatar>
+          <ListItemText primary={name} />
+        </ListItemButton>
+      </ListItem>
+      <Divider variant="inset" component="div" />
+    </div>
   );
 }
