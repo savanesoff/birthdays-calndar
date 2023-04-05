@@ -53,9 +53,7 @@ function AppConfig() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <BirthdaysProvider locale="en">
-          <App />
-        </BirthdaysProvider>
+        <App />
       </LocalizationProvider>
     </ThemeProvider>
   );

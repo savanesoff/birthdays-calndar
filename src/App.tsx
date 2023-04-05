@@ -1,31 +1,16 @@
-import { useCallback } from "react";
 import "./App.css";
-import { useBirthdays } from "./data/useBirthdays";
-import { StaticDatePicker } from "@mui/x-date-pickers";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { Alert } from "@mui/material";
 import { FavoritesList } from "./components/FavoritesList";
 import { BirthdayList } from "./components/BirthdaysList";
 import { Footer } from "./components/Footer";
+import { DatePicker } from "./components/DatePicker";
+import { useSnapshot } from "valtio";
+import { state } from "./data/state";
 
 function App() {
-  const { setDates, error, loading, birthdays } = useBirthdays();
-
-  const handleDateChange = useCallback(
-    (date: { $D: number; $M: number; $L: string } | null) => {
-      if (!date) {
-        return;
-      }
-      const DD = date.$D.toString().padStart(2, "0");
-      const MM = (date.$M + 1).toString().padStart(2, "0");
-      setDates({
-        MM,
-        DD,
-      });
-    },
-    []
-  );
+  const { error } = useSnapshot(state);
 
   return (
     <div className="App">
@@ -50,16 +35,7 @@ function App() {
             width: "50vw",
           }}
         >
-          <StaticDatePicker
-            onChange={handleDateChange}
-            orientation="landscape"
-            slotProps={{
-              // The actions will be the same between desktop and mobile
-              actionBar: {
-                actions: undefined,
-              },
-            }}
-          />
+          <DatePicker />
           <BirthdayList />
         </div>
 

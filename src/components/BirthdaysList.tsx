@@ -1,4 +1,4 @@
-import { BirthType, useBirthdays } from "../data/useBirthdays";
+import { BirthType } from "../data/types";
 import defaultAvatar from "../assets/default_avatar.png";
 import {
   Alert,
@@ -12,9 +12,10 @@ import {
   ListItemButton,
   ListItemText,
 } from "@mui/material";
-import { getLocalizedDate } from "../utils/date";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import StarIcon from "@mui/icons-material/Star";
+import { useSnapshot } from "valtio";
+import { hasCurrentDateFavorite, state, toggleFavorite } from "../data/state";
 
 const DEBOUNCE_DELAY = 700;
 /**
@@ -22,11 +23,14 @@ const DEBOUNCE_DELAY = 700;
  * No need to pass any props, as the data is fetched from the context
  */
 export function BirthdayList(): JSX.Element {
-  const { birthdays, month, day, loading } = useBirthdays();
+  const { birthdays, loading, date } = useSnapshot(state);
+  // filtered data, which is the data that is displayed
   const [filtered, setFiltered] = useState<BirthType[]>(
-    birthdays?.births || []
+    birthdays as BirthType[]
   );
+  // filter string
   const [filter, setFilter] = useState("");
+  // delay for debounce
   const [filterDelay, setFilterDelay] = useState<NodeJS.Timeout | undefined>();
 
   // filters the data based on the filter string
@@ -34,13 +38,14 @@ export function BirthdayList(): JSX.Element {
   const filterData = useCallback(
     (filter: string) => {
       if (filter) {
-        const filtered = birthdays?.births.filter((birth) => {
+        const filtered = birthdays.filter((data) => {
           const regex = new RegExp(filter, "i");
-          return regex.test(birth.text);
+          return regex.test(data.text);
         }) as BirthType[];
         setFiltered(filtered);
       } else {
-        setFiltered(birthdays?.births || []);
+        // if no filter, then just show all the data
+        setFiltered(birthdays as BirthType[]);
       }
     },
     [birthdays]
@@ -57,7 +62,7 @@ export function BirthdayList(): JSX.Element {
   useEffect(() => {
     clearTimeout(filterDelay);
     const delay = setTimeout(() => {
-      filterData(filter);
+      filterData(filter.trim());
     }, DEBOUNCE_DELAY);
     setFilterDelay(delay);
     return () => {
@@ -65,6 +70,9 @@ export function BirthdayList(): JSX.Element {
     };
   }, [filter]);
 
+  /**
+   * Memoized list of birthdays based on the filtered data
+   */
   const ListMemo = useMemo(() => {
     if (!filtered) return null;
     return (
@@ -75,9 +83,9 @@ export function BirthdayList(): JSX.Element {
           overflow: "auto",
         }}
       >
-        {filtered.map((birth, i) => (
-          <div key={birth.text}>
-            <ItemListBirthday data={birth} />
+        {filtered.map((data) => (
+          <div key={data.text}>
+            <ItemListBirthday data={data} />
             <Divider variant="inset" component="div" />
           </div>
         ))}
@@ -96,18 +104,20 @@ export function BirthdayList(): JSX.Element {
         height: "50vh",
       }}
     >
-      {day && month && (
-        <h3 data-testid="birthdays-list-title">
-          Famous people born on {getLocalizedDate(`{DD:${day}}{MM:${month}}`)}
-        </h3>
+      {/* Display title for the selected date */}
+      {date && (
+        <h3 data-testid="birthdays-list-title">Famous people born on {date}</h3>
       )}
-      {!day && !month && (
-        <Alert severity="info">Please select date to load data</Alert>
+      {/* Display message prompting user to select a date */}
+      {!date && (
+        <Alert severity="info">Please select date to load birthdays</Alert>
       )}
+      {/* This is the filter input */}
       <Input
         placeholder="Filter by name"
         onChange={(event) => setFilter(event.target.value)}
       />
+      {/* Display loading state */}
       {loading && (
         <div
           data-testid="birthdays-list-loading"
@@ -127,29 +137,44 @@ export function BirthdayList(): JSX.Element {
   );
 }
 
+/**
+ * Birthday list item, displays the avatar, name, and a star icon
+ * Additionally, clicking on the item will open the WIKI page in a new tab
+ * Clicking on the star icon will add/remove the person to/from favorites
+ * Hovering over the star icon will display a tooltip
+ * Hovering over the item will display a tooltip with the WIKI extract
+ */
 function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
-  const { toggleFavorite, getFormattedItemValue, favorites } = useBirthdays();
+  const { favorites } = useSnapshot(state);
   const avatar = data.pages[0].thumbnail?.source || defaultAvatar;
-  const name = data.text; // data.pages[0].normalizedtitle;
+  const name = data.text;
   const alt = data.text;
-  const checked = favorites?.has(getFormattedItemValue(data));
+  const url = data.pages[0].content_urls.desktop.page;
+
+  const checkedMemo = useMemo(
+    () => hasCurrentDateFavorite(data),
+    [favorites, data]
+  );
+
   const Icon = useMemo(() => {
     return (
       <StarIcon
         fontSize="large"
         data-tooltip-content={
-          checked ? "Remove from favorites" : "Add to favorites"
+          checkedMemo ? "Remove from favorites" : "Add to favorites"
         }
         data-tooltip-id={"tooltip"}
+        // call valtio action to toggle favorite
+        // which will be contextual to the current date
         onClick={() => toggleFavorite(data)}
         style={{
           cursor: "pointer",
-          fill: checked ? "#1dbbff" : "rgba(255, 255, 255, 0.1)",
-          stroke: checked ? "#a1ddf7" : "rgba(255, 255, 255, 0.1)",
+          fill: checkedMemo ? "#1dbbff" : "rgba(255, 255, 255, 0.1)",
+          stroke: checkedMemo ? "#a1ddf7" : "rgba(255, 255, 255, 0.1)",
         }}
       />
     );
-  }, [checked, data, toggleFavorite]);
+  }, [checkedMemo, data]);
 
   return (
     <ListItem
@@ -160,7 +185,8 @@ function ItemListBirthday({ data }: { data: BirthType }): JSX.Element {
       disablePadding
     >
       <ListItemButton
-        onClick={() => window.open(data.pages[0].content_urls.desktop.page)}
+        // open WIKI page in new tab of current peron
+        onClick={() => window.open(url)}
       >
         <ListItemAvatar>
           <Avatar alt={alt} src={avatar} />
