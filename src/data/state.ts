@@ -1,4 +1,4 @@
-import { proxy, subscribe } from "valtio";
+import { proxy } from "valtio";
 import { proxyMap, subscribeKey } from "valtio/utils";
 import { BirthType } from "./types";
 
@@ -146,3 +146,29 @@ export const hasCurrentDateFavorite = (data: BirthType) => {
   const date = state.date;
   return state.favorites.get(date)?.has(data.text);
 };
+
+// restore state from localStorage on page load
+function restoreState() {
+  const dates =
+    JSON.parse(localStorage.getItem("favorites-dates") || "null") || [];
+
+  dates.forEach((date: string) => {
+    const birthdays = JSON.parse(localStorage.getItem(date) || "null") || [];
+    state.favorites.set(date, proxyMap());
+    birthdays.forEach((birthday: BirthType) => {
+      state.favorites.get(date)?.set(birthday.text, birthday);
+    });
+  });
+}
+// save state to localStorage on page unload
+function saveState() {
+  const dates = Array.from(state.favorites.keys());
+  localStorage.setItem("favorites-dates", JSON.stringify(dates));
+  dates.forEach((date) => {
+    const birthdays = Array.from(state.favorites.get(date)?.values() || []);
+    localStorage.setItem(date, JSON.stringify(birthdays));
+  });
+}
+// add event listeners
+window.addEventListener("DOMContentLoaded", restoreState);
+window.addEventListener("beforeunload", saveState);
