@@ -160,7 +160,10 @@ function ItemListBirthday({
   const name = data.text;
   const alt = data.text;
   const url = data.pages[0].content_urls.desktop.page;
-
+  // open WIKI page in new tab of current peron
+  const openWiki = useCallback(() => window.open(url, "_blank"), [url]);
+  const toggle = useCallback(() => toggleFavorite(data), [data]);
+  // check if the current person is a favorite
   const checkedMemo = useMemo(
     () => hasCurrentDateFavorite(data),
     [favorites, data]
@@ -176,7 +179,7 @@ function ItemListBirthday({
         data-tooltip-id={"tooltip"}
         // call valtio action to toggle favorite
         // which will be contextual to the current date
-        onClick={() => toggleFavorite(data)}
+        onClick={toggle}
         style={{
           cursor: "pointer",
           fill: checkedMemo ? "#1dbbff" : "rgba(255, 255, 255, 0.1)",
@@ -195,10 +198,7 @@ function ItemListBirthday({
       disablePadding
       style={style}
     >
-      <ListItemButton
-        // open WIKI page in new tab of current peron
-        onClick={() => window.open(url)}
-      >
+      <ListItemButton onClick={openWiki}>
         <ListItemAvatar>
           <Avatar alt={alt} src={avatar} />
         </ListItemAvatar>
